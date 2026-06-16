@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import {connectDB} from './lib/db.js';
 import authRouter from "./routes/authRoutes.js";
+import messageRouter from "./routes/messageRoutes.js";
 import cookieParser from 'cookie-parser';
 dotenv.config();
 const app = express();
@@ -18,3 +19,4 @@ const server = app.listen(port, async() => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/message", messageRouter);

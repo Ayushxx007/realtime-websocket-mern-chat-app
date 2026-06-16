@@ -135,6 +135,18 @@ export const logout=async(req,res)=>{
 export const check=async(req,res,next)=>{
 
     try{
+        const user=req.user;
+        return res.status(200).json({user:user});
+
+
+
+    }catch{
+        console.log("Error in checkAuth Controller");
+        return res.status(500).send({"internal server error":"Server Error"});
+
+    }
+
+    try{
         res.send({message:"check"});
     }catch(err){
         console.log("error in check route",err);
