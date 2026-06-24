@@ -20,7 +20,9 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: function () {
+            return this.authProvider === "local";
+        },
         minlength: 6,
         validate: {
             validator: validator.isStrongPassword,
@@ -32,9 +34,18 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default:"",
 
+    },
+    googleId: {
+        type: String
+    },
+
+    authProvider: {
+        type: String,
+        default: "local"
     }
+
 },{ timestamps: true });
 
-const User = mongoose.model("User", UserSchema);
+const User = mongoose.models.User || mongoose.model("User", UserSchema);
 
 export default User;

@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import User from "../models/User.js";
 import {generateToken} from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
+import { OAuth2Client } from "google-auth-library";
+
 
 
 export const login=async(req,res)=>{
@@ -182,3 +184,60 @@ export const updateProfile=async(req,res)=>{
 
 }
 
+
+
+const client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID
+);
+
+export const googleLogin = async (req, res) => {
+
+    try {
+
+        const { credential } = req.body;
+
+        const ticket =
+            await client.verifyIdToken({
+                idToken: credential,
+                audience: process.env.GOOGLE_CLIENT_ID
+            });
+
+        const payload = ticket.getPayload();
+
+        const email = payload.email;
+        const name = payload.name;
+        const googleId = payload.sub;
+
+        let user =
+            await User.findOne({ email });
+
+        if (!user) {
+
+            user = await User.create({
+                fullName:name,
+                email,
+                googleId,
+                authProvider: "google"
+            });
+
+        }
+
+        generateToken(user._id,res);
+
+
+        return res.json({
+            success: true,
+            user
+        });
+
+    } catch (err) {
+
+        console.error("Google Login Error:", err);
+
+        return res.status(401).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+};
